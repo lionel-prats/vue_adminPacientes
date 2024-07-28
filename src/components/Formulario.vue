@@ -1,5 +1,5 @@
 <script setup>
-    import {/* ref */ reactive} from "vue"
+    import {/* ref */ reactive, computed} from "vue"
     import Alerta from "./Alerta.vue"
     
     // const nombre = ref("Max"); // ej. v78
@@ -19,6 +19,10 @@
     const emit = defineEmits(["update:nombre", "update:propietario", "update:email", "update:alta", "update:sintomas", "guardar-paciente"]) // v88
 
     const props = defineProps({ // v88
+        id: {
+            type: [String, null], // le decimos a Vue que el id puede ser String o null (v98)
+            required: true,
+        },
         nombre: {
             type: String,
             required: true,
@@ -38,7 +42,7 @@
         sintomas: {
             type: String,
             required: true,
-        }
+        },
     })
 
     const alerta = reactive({
@@ -52,9 +56,9 @@
             alerta.mensaje = "Todos los campos son obligatorios"
             return
         } 
-        emit("guardar-paciente")
         alerta.tipo = "exito"
-        alerta.mensaje = "Paciente almacenado correctamente"
+        alerta.mensaje = props.id ? 'Cambios Guardados' : 'Paciente almacenado correctamente'
+        emit("guardar-paciente")
         setTimeout(() => {
             Object.assign(alerta, {
                 "tipo": "",
@@ -62,6 +66,11 @@
             })
         }, 3000);
     }
+
+    // computedProperty para renderizar de forma dinamica la leyenda del btn del form (v98)
+    const editando = computed( () => {
+        return props.id
+    })
 
 </script>
 <template>
@@ -162,7 +171,7 @@
             <input 
                 class="bg-indigo-600 w-full p-3 text-white uppercase font-bold hover:bg-indigo-700 cursor-pointer transition-colors"
                 type="submit"
-                value="Registrar Paciente"
+                :value="[editando ? 'Guardar Cambios' : 'Registrar Paciente']"           
             />
         </form>
     </div>
